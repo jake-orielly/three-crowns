@@ -1,0 +1,7 @@
+export const BOARD_SQUARE_SIZE_PX = 64;
+
+export const BOARD_HEIGHT = 11;
+export const BOARD_WIDTH = 11;
+
+export const BOARD_HEIGHT_PX = BOARD_SQUARE_SIZE_PX * BOARD_HEIGHT;
+export const BOARD_WIDTH_PX = BOARD_SQUARE_SIZE_PX * BOARD_WIDTH;

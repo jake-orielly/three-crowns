@@ -1,0 +1,30 @@
+{
+    "name": "three_crowns",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.17.17",
+        "@types/react": "^19.1.6",
+        "@types/react-dom": "^19.1.5",
+        "typescript": "~5.7.2",
+        "vite": "^6.2.0"
+    },
+    "dependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
+        "@mui/icons-material": "^7.1.0",
+        "@mui/material": "^7.1.0",
+        "@mui/styles": "^6.4.11",
+        "lodash": "^4.17.21",
+        "mitt": "^3.0.1",
+        "pixi.js": "^8.9.1",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0"
+    }
+}
