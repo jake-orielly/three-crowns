@@ -7,6 +7,9 @@ import { Terrain, TerrainType } from "./terrain/Terrain";
 import { Coords } from "./types";
 import { COLORS } from "../consts";
 import { countBy } from "lodash";
+import { storageStructures, territoryStructures } from "./structures/types";
+import { FactionResources } from "./resources/FactionResources";
+import { events } from "../events/events";
 
 type coords = string;
 
@@ -14,14 +17,30 @@ export class Board {
     private container: Container<ContainerChild>;
     private structures: Record<coords, Structure>;
     private terrain: Record<coords, Terrain>;
-    private territory: Record<coords, string>;
-    private activeCity: Lodge | undefined;
+    private factionResources: Record<string, FactionResources>;
 
     constructor(container: Container<ContainerChild>) {
         this.container = container;
         this.structures = {};
         this.terrain = {};
-        this.territory = {};
+
+        const playerResources = new FactionResources();
+        this.factionResources = {
+            player: playerResources,
+        };
+    }
+
+    public gameTick({ secondFraction }: { secondFraction: number }) {
+        const structuresByType = this.countStructuresByType();
+        this.factionResources.player?.updateResourceCount({
+            resource: "wheat",
+            baseAmount: structuresByType["WheatFarm"],
+            multipliers: [secondFraction],
+        });
+        events.emit(
+            "setPlayerResourceCounts",
+            this.factionResources.player.getResourceCounts()
+        );
     }
 
     public async createBoard() {
@@ -50,9 +69,7 @@ export class Board {
             type: "plains",
         });
 
-        const lodge = this.addLodge(lodgeCoords);
-
-        this.activeCity = lodge;
+        this.addLodge(lodgeCoords);
     }
 
     public getStructureType(args: {
@@ -84,6 +101,7 @@ export class Board {
             });
         }
     }
+
     public addStructure(args: {
         x: number;
         y: number;
@@ -96,9 +114,36 @@ export class Board {
             container: this.container,
         });
         this.structures[terrainMapCoords] = newStructure;
-        this.updateTerritory();
+        if (territoryStructures.includes(structure.name)) {
+            this.updateTerritory();
+        }
+        if (storageStructures.includes(structure.name)) {
+            this.updateResourceCaps();
+        }
 
         return newStructure;
+    }
+
+    public updateResourceCaps() {
+        const structureCounts = countBy(
+            Object.values(this.structures),
+            (structure) => structure.constructor.name
+        );
+
+        const houseCount = structureCounts["House"] ?? 0;
+        const lodgeCount = structureCounts["Lodge"] ?? 0;
+
+        const playerResources = this.factionResources.player;
+
+        playerResources.setResourceCap({
+            resource: "population",
+            amount: lodgeCount * 10 + houseCount * 5,
+        });
+
+        events.emit(
+            "setPlayerResourceCaps",
+            playerResources?.getResourceCaps()
+        );
     }
 
     public getTerrainType(args: Coords): TerrainType {

@@ -5,3 +5,4 @@ export interface Resources {
 }
 
 export type Resource = keyof Resources;
+export const resourceKeys: Resource[] = ["population", "wheat", "wood"];

@@ -4,6 +4,7 @@ import { Board } from "./game-objects/Board";
 import { BOARD_SQUARE_SIZE_PX } from "./game-objects/consts";
 import { WatchTower } from "./game-objects/structures/WatchTower";
 import { WheatFarm } from "./game-objects/structures/WheatFarm";
+import { House } from "./game-objects/structures/House";
 import { createApp } from "./utils/createApp";
 import { createContainer } from "./utils/createContainer";
 import { events } from "./events/events";
@@ -48,30 +49,19 @@ import { addAppTicker } from "./utils/addAppTicker";
             activeStructure = WheatFarm;
         } else if (structure === "watchTower") {
             activeStructure = WatchTower;
+        } else if (structure === "house") {
+            activeStructure = House;
         }
     });
 
     const board = new Board(container);
     await board.createBoard();
 
-    const playerResources = new FactionResources();
-
-    const tickCallback = ({ secondFraction }: { secondFraction: number }) => {
-        const structuresByType = board.countStructuresByType();
-        playerResources.updateResourceCount({
-            resource: "wheat",
-            baseAmount: structuresByType["WheatFarm"],
-            multipliers: [secondFraction],
-        });
-        events.emit(
-            "setPlayerResourceCounts",
-            playerResources.getResourceCounts()
-        );
-    };
-
     addAppTicker({
         app,
-        tickCallback,
+        tickCallback: (args) => {
+            board.gameTick(args);
+        },
     });
 })();
 

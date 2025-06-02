@@ -8,7 +8,8 @@ export async function createApp(): Promise<Application<Renderer>> {
         width: BOARD_WIDTH_PX,
         height: BOARD_HEIGHT_PX,
     });
-    document.body.appendChild(app.canvas);
+    const boardContainer = document.getElementById("game-board-container");
+    if (boardContainer) boardContainer.appendChild(app.canvas);
 
     return app;
 }
